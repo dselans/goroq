@@ -2,8 +2,9 @@ package runner
 
 import (
 	"fmt"
-	"math/rand"
-	"time"
+	"os"
+
+	"github.com/go-fsnotify/fsnotify"
 )
 
 type Runner struct {
@@ -17,16 +18,12 @@ func New(runqueue <-chan string) *Runner {
 }
 
 func (r *Runner) runTest(id int, dir string) {
-	fmt.Printf("routine %v running job %v\n", id, dir)
-	time.Sleep(time.Second * 5)
-	fmt.Printf("routine %v is finished!\n", id)
 }
 
 func (r *Runner) Run() {
 	fmt.Println("Runner started...")
 
 	for {
-		project := <-r.RunQueue
-		go r.runTest(rand.Intn(65535), project)
+
 	}
 }

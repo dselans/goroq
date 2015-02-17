@@ -4,6 +4,8 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+
+	helper "github.com/dselans/goroq/helper"
 )
 
 const (
@@ -20,7 +22,7 @@ type CliOptions struct {
 }
 
 func displayUsage() {
-	HelperCustomExit(fmt.Sprintf("Usage: ./goreq [-h|-v|] [-d directory] [-o output_file] [-c config_file]\n\n"+
+	helper.CustomExit(fmt.Sprintf("Usage: ./goreq [-h|-v|] [-d directory] [-o output_file] [-c config_file]\n\n"+
 		"-h               : Display this help message\n"+
 		"-v               : Display goreq version\n"+
 		"-d directory     : Set monitor/test dir (default: %v)\n"+
@@ -42,11 +44,11 @@ func handleCliArgs() *CliOptions {
 	flag.Parse()
 
 	if opts.VersionFlag {
-		HelperCustomExit(fmt.Sprintf("goreq v%v", VERSION), 0)
+		helper.CustomExit(fmt.Sprintf("goreq v%v", VERSION), 0)
 	}
 
 	if err := validateCliArgs(opts); err != nil {
-		HelperCustomExit(err.Error(), 1)
+		helper.CustomExit(err.Error(), 1)
 	}
 
 	return opts
@@ -54,12 +56,12 @@ func handleCliArgs() *CliOptions {
 
 func validateCliArgs(opts *CliOptions) error {
 	// Check whether MonitorDir is a dir
-	if !HelperIsDir(opts.MonitorDir) {
+	if !helper.IsDir(opts.MonitorDir) {
 		return errors.New("Monitor directory does not appear to be a valid directory")
 	}
 
 	// Check that output file is writable
-	if !HelperIsWritable(opts.OutputFile) {
+	if !helper.IsWritable(opts.OutputFile) {
 		return errors.New("Output file is not writable")
 	}
 
