@@ -4,6 +4,8 @@ import (
 	"log"
 	"time"
 
+	config "github.com/dselans/goroq/config"
+	helper "github.com/dselans/goroq/helper"
 	runner "github.com/dselans/goroq/runner"
 	watcher "github.com/dselans/goroq/watcher"
 )
@@ -15,20 +17,23 @@ const (
 func main() {
 	opts := handleCliArgs()
 
-	runqueue := make(chan string, 100)
-
-	projects := map[string]string{
-		"CustomProject1": "/Users/dselans/tests/dir1",
-		"CustomProject2": "/Users/dselans/tests/dir2",
+	projects, err := config.Read(opts.ConfigFile)
+	if err != nil {
+		helper.CustomExit(err.Error(), 1)
 	}
 
+	log.Println(projects)
+
+	runqueue := make(chan string, 100)
+
+	// Start test runner goroutine
 	runnerObj := runner.New(runqueue)
 	go runnerObj.Run()
 
-	for projectName, projectDir := range projects {
-		log.Printf("Launching watcher for project %v with dir: %v\n", projectName, projectDir)
-
-		watcherObj := watcher.New(projectName, projectDir, runqueue)
+	// Start fsnotify goroutines
+	for _, p := range projects {
+		log.Printf("Launching watcher for project %v with dir: %v\n", p.Name, p.Dir)
+		watcherObj := watcher.New(p, runqueue)
 		go watcherObj.Run()
 	}
 

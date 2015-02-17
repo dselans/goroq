@@ -13,6 +13,15 @@ func CustomExit(exitMessage string, exitCode int) {
 	os.Exit(exitCode)
 }
 
+// Check if file exists
+func FileExists(file string) bool {
+	if _, err := os.Stat(file); os.IsNotExist(err) {
+		return false
+	}
+
+	return true
+}
+
 // Check whether a given filename is a dir
 func IsDir(dir string) bool {
 	f, err := os.Open(dir)

@@ -4,21 +4,20 @@ import (
 	"fmt"
 	"log"
 
+	config "github.com/dselans/goroq/config"
 	helper "github.com/dselans/goroq/helper"
 	fsnotify "github.com/go-fsnotify/fsnotify"
 )
 
 type Watcher struct {
-	ProjectName string
-	ProjectDir  string
 	RunQueue    chan<- string
+	Project     config.Project
 	WatchedDirs []string
 }
 
-func New(projectName, projectDir string, runqueue chan<- string) *Watcher {
+func New(project config.Project, runqueue chan<- string) *Watcher {
 	watcherObj := &Watcher{}
-	watcherObj.ProjectName = projectName
-	watcherObj.ProjectDir = projectDir
+	watcherObj.Project = project
 	watcherObj.RunQueue = runqueue
 	return watcherObj
 }
@@ -47,9 +46,9 @@ func (w *Watcher) NewWatcher() (*fsnotify.Watcher, error) {
 		return nil, err
 	}
 
-	if err := w.RecursiveAdd(watcherObj, w.ProjectDir); err != nil {
+	if err := w.RecursiveAdd(watcherObj, w.Project.Dir); err != nil {
 		helper.CustomExit(fmt.Sprintf("Unable to add initial fs watcher for project %v",
-			w.ProjectDir), 1)
+			w.Project.Dir), 1)
 	}
 
 	return watcherObj, nil
@@ -67,7 +66,7 @@ func (w *Watcher) IsWatched(watcherObj *fsnotify.Watcher, dir string) bool {
 }
 
 func (w *Watcher) Run() {
-	log.Printf("Watcher started for project %v...\n", w.ProjectName)
+	log.Printf("Watcher started for project %v...\n", w.Project.Name)
 
 	fswatcher, err := w.NewWatcher()
 	if err != nil {
@@ -80,7 +79,7 @@ func (w *Watcher) Run() {
 			if (event.Op&fsnotify.Create == fsnotify.Create) || (event.Op&fsnotify.Remove == fsnotify.Remove) || (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Rename == fsnotify.Rename) {
 				// Add to run/test queue as a change has taken place
 				log.Println("Stuff has happened: ", event)
-				w.RunQueue <- w.ProjectDir
+				w.RunQueue <- w.Project.Dir
 
 				// Make sure to remove a watch for a dir if it gets deleted
 				if w.IsWatched(fswatcher, event.Name) {
@@ -101,7 +100,7 @@ func (w *Watcher) Run() {
 			}
 		case err := <-fswatcher.Errors:
 			if err != nil {
-				log.Printf("Error while watching project %v. Error: %v\n", w.ProjectName, err)
+				log.Printf("Error while watching project %v. Error: %v\n", w.Project.Name, err)
 			}
 		}
 	}
