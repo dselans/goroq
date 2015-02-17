@@ -3,6 +3,7 @@ package helper
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -57,6 +58,18 @@ func IsWritable(filename string) bool {
 	}
 
 	return true
+}
+
+// This probably needs to be a bit more sophisticated
+func ExecCmd(command string, args ...string) ([]byte, error) {
+	fmt.Printf("Running command: %v %v\n", command, args)
+
+	out, err := exec.Command(command, args...).Output()
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
 }
 
 // Subfolders returns a slice of subfolders (recursive), including the folder provided.
