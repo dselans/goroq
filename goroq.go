@@ -4,7 +4,6 @@ import (
 	"log"
 	"time"
 
-	cli "github.com/dselans/goroq/cli"
 	runner "github.com/dselans/goroq/runner"
 	watcher "github.com/dselans/goroq/watcher"
 )
@@ -14,6 +13,8 @@ const (
 )
 
 func main() {
+	opts := handleCliArgs()
+
 	runqueue := make(chan string, 100)
 
 	projects := map[string]string{
