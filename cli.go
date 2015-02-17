@@ -10,8 +10,8 @@ import (
 
 const (
 	DefaultMonitorDir string = "./"
-	DefaultOutputFile string = "./goreq.log"
-	DefaultConfigFile string = "~/.goreqrc"
+	DefaultOutputFile string = "goroq.log"
+	DefaultConfigFile string = "goroq.json"
 )
 
 type CliOptions struct {

@@ -22,12 +22,10 @@ func main() {
 		helper.CustomExit(err.Error(), 1)
 	}
 
-	log.Println(projects)
-
 	runqueue := make(chan string, 100)
 
 	// Start test runner goroutine
-	runnerObj := runner.New(runqueue)
+	runnerObj := runner.New(projects, runqueue)
 	go runnerObj.Run()
 
 	// Start fsnotify goroutines
