@@ -51,7 +51,6 @@ func IsWritable(filename string) bool {
 }
 
 // Subfolders returns a slice of subfolders (recursive), including the folder provided.
-// NOTE: Borrowed from: https://github.com/nathany/looper/blob/master/watch.go
 func Subfolders(path string) (paths []string) {
 	filepath.Walk(path, func(newPath string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -73,7 +72,6 @@ func Subfolders(path string) (paths []string) {
 
 // shouldIgnoreFile determines if a file should be ignored.
 // File names that begin with "." or "_" are ignored by the go tool.
-// NOTE: Borrowed from: https://github.com/nathany/looper/blob/master/watch.go
 func shouldIgnoreFile(name string) bool {
 	return strings.HasPrefix(name, ".") || strings.HasPrefix(name, "_")
 }

@@ -2,9 +2,6 @@ package runner
 
 import (
 	"fmt"
-	"os"
-
-	"github.com/go-fsnotify/fsnotify"
 )
 
 type Runner struct {
@@ -17,13 +14,15 @@ func New(runqueue <-chan string) *Runner {
 	return runnerObj
 }
 
-func (r *Runner) runTest(id int, dir string) {
+func (r *Runner) RunTest(dir string) {
+	fmt.Println("Running test on dir:", dir)
 }
 
 func (r *Runner) Run() {
 	fmt.Println("Runner started...")
 
 	for {
-
+		dir := <-r.RunQueue
+		go r.RunTest(dir)
 	}
 }

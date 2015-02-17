@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
-	// runner "github.com/dselans/goroq/runner"
-	// watcher "github.com/dselans/goroq/watcher"
+	"time"
+
+	runner "github.com/dselans/goroq/runner"
+	watcher "github.com/dselans/goroq/watcher"
 )
 
 const (
@@ -11,20 +13,24 @@ const (
 )
 
 func main() {
-	opts := handleCliArgs()
-	fmt.Println(opts)
-	// runqueue := make(chan string)
-	// projects := make(chan string)
-	// monitordirs := []string{"one", "two", "three"}
+	runqueue := make(chan string, 100)
 
-	// runnerObj := runner.New(runqueue)
-	// watcherObj := watcher.New(monitordirs, projects, runqueue)
+	projects := map[string]string{
+		"CustomProject1": "/Users/dselans/tests/dir1",
+		"CustomProject2": "/Users/dselans/tests/dir2",
+	}
 
-	// go runnerObj.Run()
-	// go watcherObj.Run()
+	runnerObj := runner.New(runqueue)
+	go runnerObj.Run()
 
-	// for {
-	// 	fmt.Println("Main program tick")
-	// 	time.Sleep(time.Second * 1)
-	// }
+	for projectName, projectDir := range projects {
+		fmt.Printf("Launching watcher for project %v with dir: %v\n", projectName, projectDir)
+
+		watcherObj := watcher.New(projectName, projectDir, runqueue)
+		go watcherObj.Run()
+	}
+
+	for {
+		time.Sleep(time.Second * 1)
+	}
 }
