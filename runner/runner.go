@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"fmt"
+	"log"
 )
 
 type Runner struct {
@@ -15,11 +15,11 @@ func New(runqueue <-chan string) *Runner {
 }
 
 func (r *Runner) RunTest(dir string) {
-	fmt.Println("Running test on dir:", dir)
+	log.Println("Running test on dir:", dir)
 }
 
 func (r *Runner) Run() {
-	fmt.Println("Runner started...")
+	log.Println("Runner started...")
 
 	for {
 		dir := <-r.RunQueue

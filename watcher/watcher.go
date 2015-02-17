@@ -2,6 +2,7 @@ package watcher
 
 import (
 	"fmt"
+	"log"
 
 	helper "github.com/dselans/goroq/helper"
 	fsnotify "github.com/go-fsnotify/fsnotify"
@@ -11,6 +12,7 @@ type Watcher struct {
 	ProjectName string
 	ProjectDir  string
 	RunQueue    chan<- string
+	WatchedDirs []string
 }
 
 func New(projectName, projectDir string, runqueue chan<- string) *Watcher {
@@ -26,11 +28,13 @@ func (w *Watcher) RecursiveAdd(watcherObj *fsnotify.Watcher, path string) error 
 	subdirs := helper.Subfolders(path)
 
 	for _, dir := range subdirs {
-		fmt.Println("Adding watcher for dir:", dir)
+		log.Println("Adding watcher for dir:", dir)
 
 		if err := watcherObj.Add(dir); err != nil {
 			return err
 		}
+
+		w.WatchedDirs = append(w.WatchedDirs, dir)
 	}
 
 	return nil
@@ -51,8 +55,19 @@ func (w *Watcher) NewWatcher() (*fsnotify.Watcher, error) {
 	return watcherObj, nil
 }
 
+// Check if a given dir is actively watched via fsnotify
+func (w *Watcher) IsWatched(watcherObj *fsnotify.Watcher, dir string) bool {
+	for _, watchedDir := range w.WatchedDirs {
+		if dir == watchedDir {
+			return true
+		}
+	}
+
+	return false
+}
+
 func (w *Watcher) Run() {
-	fmt.Printf("Watcher started for project %v...\n", w.ProjectName)
+	log.Printf("Watcher started for project %v...\n", w.ProjectName)
 
 	fswatcher, err := w.NewWatcher()
 	if err != nil {
@@ -64,21 +79,29 @@ func (w *Watcher) Run() {
 		case event := <-fswatcher.Events:
 			if (event.Op&fsnotify.Create == fsnotify.Create) || (event.Op&fsnotify.Remove == fsnotify.Remove) || (event.Op&fsnotify.Write == fsnotify.Write) || (event.Op&fsnotify.Rename == fsnotify.Rename) {
 				// Add to run/test queue as a change has taken place
-				fmt.Println("Stuff has happened: ", event)
+				log.Println("Stuff has happened: ", event)
 				w.RunQueue <- w.ProjectDir
 
 				// Make sure to remove a watch for a dir if it gets deleted
+				if w.IsWatched(fswatcher, event.Name) {
+					// !!! Not working for some reason
+					//
+					// if err := fswatcher.Remove(event.Name); err != nil {
+					// 	log.Printf("ERROR: Unable to remove watched resource %v. Error: %v\n", event.Name, err)
+					// }
+					continue
+				}
 
 				// If dir, roll through and add to existing watcher
 				if helper.IsDir(event.Name) {
 					if err := w.RecursiveAdd(fswatcher, event.Name); err != nil {
-						fmt.Println("ERROR: Tried to add new fswatcher for dir:", event.Name)
+						log.Println("ERROR: Tried to add new fswatcher for dir:", event.Name)
 					}
 				}
 			}
 		case err := <-fswatcher.Errors:
 			if err != nil {
-				fmt.Printf("Error while watching project %v. Error: %v\n", w.ProjectName, err)
+				log.Printf("Error while watching project %v. Error: %v\n", w.ProjectName, err)
 			}
 		}
 	}

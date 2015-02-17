@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log"
 	"time"
 
 	runner "github.com/dselans/goroq/runner"
@@ -24,7 +24,7 @@ func main() {
 	go runnerObj.Run()
 
 	for projectName, projectDir := range projects {
-		fmt.Printf("Launching watcher for project %v with dir: %v\n", projectName, projectDir)
+		log.Printf("Launching watcher for project %v with dir: %v\n", projectName, projectDir)
 
 		watcherObj := watcher.New(projectName, projectDir, runqueue)
 		go watcherObj.Run()

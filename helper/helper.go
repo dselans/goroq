@@ -1,7 +1,7 @@
 package helper
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -9,7 +9,7 @@ import (
 
 // Helper function for printing a message to stdout + exit with given exit code
 func CustomExit(exitMessage string, exitCode int) {
-	fmt.Println(exitMessage)
+	log.Println(exitMessage)
 	os.Exit(exitCode)
 }
 
