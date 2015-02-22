@@ -1,6 +1,10 @@
 package runner
 
 import (
+	"fmt"
+	"os"
+	"strings"
+
 	config "github.com/dselans/goroq/config"
 	golog "github.com/dselans/goroq/golog"
 	helper "github.com/dselans/goroq/helper"
@@ -21,15 +25,37 @@ func New(project config.Project, runQueue <-chan string, logger *golog.Logger) *
 }
 
 func (r *Runner) RunTest(dir string) {
+	if err := os.Chdir(r.Project.Dir); err != nil {
+		helper.CustomExit(fmt.Sprintf("Unable to Chdir() to project dir '%v'", r.Project.Dir), 1)
+	}
+
 	r.Logger.Info.Printf("Runner (%v): Running test on dir: %v\n", r.Project.Name, dir)
 
-	output, err := helper.ExecCmd("go", "test", dir+"/...")
+	output, err := helper.ExecCmd("go", "test", "./...")
 	if err != nil {
-		r.Logger.Warning.Printf("Runner (%v): Problems running test in %v. Error: %v\n", r.Project.Name, dir, err)
+		r.PresentOutput(false, output)
 		return
 	}
 
-	r.Logger.Info.Printf("Runner (%v): [Test Output] %v", output)
+	r.PresentOutput(true, output)
+}
+
+func (r *Runner) PresentOutput(success bool, output []byte) {
+	prefix := "Test Output"
+
+	if !success {
+		r.Logger.Warning.Printf("Runner (%v): Got error(s):\n", r.Project.Name)
+		r.Logger.Warning.Printf("Runner (%v):\n", r.Project.Name)
+		prefix = "Error Output"
+	}
+
+	for _, line := range strings.Split(string(output), "\n") {
+		if line == "" {
+			continue
+		}
+		r.Logger.Warning.Printf("Runner (%v): [%v] %v\n", r.Project.Name, prefix, line)
+	}
+
 }
 
 func (r *Runner) Run() {

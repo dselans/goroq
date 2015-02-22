@@ -68,11 +68,9 @@ func IsWritable(filename string) bool {
 
 // This probably needs to be a bit more sophisticated
 func ExecCmd(command string, args ...string) ([]byte, error) {
-	fmt.Printf("Running command: %v %v\n", command, args)
-
-	out, err := exec.Command(command, args...).Output()
+	out, err := exec.Command(command, args...).CombinedOutput()
 	if err != nil {
-		return nil, err
+		return out, err
 	}
 
 	return out, nil
