@@ -81,20 +81,12 @@ func (w *Watcher) Run() {
 				log.Println("Stuff has happened: ", event)
 				w.RunQueue <- w.Project.Dir
 
-				// Make sure to remove a watch for a dir if it gets deleted
-				if w.IsWatched(fswatcher, event.Name) {
-					// !!! Not working for some reason
-					//
-					// if err := fswatcher.Remove(event.Name); err != nil {
-					// 	log.Printf("ERROR: Unable to remove watched resource %v. Error: %v\n", event.Name, err)
-					// }
-					continue
-				}
-
-				// If dir, roll through and add to existing watcher
-				if helper.IsDir(event.Name) {
-					if err := w.RecursiveAdd(fswatcher, event.Name); err != nil {
-						log.Println("ERROR: Tried to add new fswatcher for dir:", event.Name)
+				// If a new dir is created, make sure to add it to watch list
+				if event.Op&fsnotify.Create == fsnotify.Create {
+					if helper.IsDir(event.Name) {
+						if err := w.RecursiveAdd(fswatcher, event.Name); err != nil {
+							log.Println("ERROR: Tried to add new fswatcher for dir:", event.Name)
+						}
 					}
 				}
 			}

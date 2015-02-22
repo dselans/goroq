@@ -57,12 +57,12 @@ func handleCliArgs() *CliOptions {
 func validateCliArgs(opts *CliOptions) error {
 	// Check whether MonitorDir is a dir
 	if !helper.IsDir(opts.MonitorDir) {
-		return errors.New("Monitor directory does not appear to be a valid directory")
+		return errors.New(fmt.Sprintf("Monitor directory '%v' does not appear to be a valid directory", opts.MonitorDir))
 	}
 
 	// Check that output file is writable
 	if !helper.IsWritable(opts.OutputFile) {
-		return errors.New("Output file is not writable")
+		return errors.New(fmt.Sprintf("Output file '%v' is not writable", opts.OutputFile))
 	}
 
 	// Some additional config checks should go in here
