@@ -1,10 +1,10 @@
 package main
 
 import (
-	"log"
 	"time"
 
 	config "github.com/dselans/goroq/config"
+	golog "github.com/dselans/goroq/golog"
 	helper "github.com/dselans/goroq/helper"
 	runner "github.com/dselans/goroq/runner"
 	watcher "github.com/dselans/goroq/watcher"

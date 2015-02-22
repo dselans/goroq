@@ -55,6 +55,7 @@ func (w *Watcher) NewWatcher() (*fsnotify.Watcher, error) {
 }
 
 // Check if a given dir is actively watched via fsnotify
+// NOTE: Currently no need for this.
 func (w *Watcher) IsWatched(watcherObj *fsnotify.Watcher, dir string) bool {
 	for _, watchedDir := range w.WatchedDirs {
 		if dir == watchedDir {

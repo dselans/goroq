@@ -46,16 +46,22 @@ func IsDir(dir string) bool {
 
 // Checks whether a file is writeable
 func IsWritable(filename string) bool {
-	f, err := os.Create(filename)
+	var file *os.File
+	var err error
+
+	// If the file already exists, attempt to open for APPEND; otherwise
+	// do a Create(), followed by a Remove()
+	if FileExists(filename) {
+		file, err := os.OpenFile(filename, os.O_APPEND, 0666)
+	} else {
+		file, err := os.Create(filename)
+	}
+
 	if err != nil {
 		return false
 	}
 
-	defer f.Close()
-
-	if _, err := f.Write(make([]byte, 0)); err != nil {
-		return false
-	}
+	file.Close()
 
 	return true
 }
