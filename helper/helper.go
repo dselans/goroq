@@ -52,9 +52,9 @@ func IsWritable(filename string) bool {
 	// If the file already exists, attempt to open for APPEND; otherwise
 	// do a Create(), followed by a Remove()
 	if FileExists(filename) {
-		file, err := os.OpenFile(filename, os.O_APPEND, 0666)
+		file, err = os.OpenFile(filename, os.O_APPEND, 0666)
 	} else {
-		file, err := os.Create(filename)
+		file, err = os.Create(filename)
 	}
 
 	if err != nil {

@@ -24,7 +24,13 @@ $ goreq -h
 Usage: ./goreq [-h|-v|] [-d directory] [-o output_file] [-c config_file]
 ```
 
+### Install
+Assuming you have setup GOPATH:
+```
+go get github.com/dselans/goroq
+```
+
 ### Misc
-Goroq uses `inotify` for detecting file changes (both in tests and its own configuration).
+Goroq uses `fsnotify` for detecting file changes (both in tests and its own configuration).
 
 While similar projects exist ([goconvey](http://goconvey.co/), [looper](https://github.com/nathany/looper)), this seemed like a fun project to get some more Go experience.

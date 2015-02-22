@@ -4,7 +4,7 @@ import (
 	"time"
 
 	config "github.com/dselans/goroq/config"
-	golog "github.com/dselans/goroq/golog"
+	//golog "github.com/dselans/goroq/golog"
 	helper "github.com/dselans/goroq/helper"
 	runner "github.com/dselans/goroq/runner"
 	watcher "github.com/dselans/goroq/watcher"
@@ -30,7 +30,7 @@ func main() {
 
 	// Start fsnotify goroutines
 	for _, p := range projects {
-		log.Printf("Launching watcher for project %v with dir: %v\n", p.Name, p.Dir)
+		//log.Printf("Launching watcher for project %v with dir: %v\n", p.Name, p.Dir)
 		watcherObj := watcher.New(p, runqueue)
 		go watcherObj.Run()
 	}
