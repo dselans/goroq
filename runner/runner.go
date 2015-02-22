@@ -1,38 +1,39 @@
 package runner
 
 import (
-	"log"
-
 	config "github.com/dselans/goroq/config"
+	golog "github.com/dselans/goroq/golog"
 	helper "github.com/dselans/goroq/helper"
 )
 
 type Runner struct {
 	RunQueue <-chan string
-	Projects []config.Project
+	Project  config.Project
+	Logger   *golog.Logger
 }
 
-func New(projects []config.Project, runqueue <-chan string) *Runner {
+func New(project config.Project, runQueue <-chan string, logger *golog.Logger) *Runner {
 	runnerObj := &Runner{}
-	runnerObj.RunQueue = runqueue
-	runnerObj.Projects = projects
+	runnerObj.RunQueue = runQueue
+	runnerObj.Project = project
+	runnerObj.Logger = logger
 	return runnerObj
 }
 
 func (r *Runner) RunTest(dir string) {
-	log.Println("Running test on dir:", dir)
+	r.Logger.Info.Printf("Runner (%v): Running test on dir: %v\n", r.Project.Name, dir)
 
 	output, err := helper.ExecCmd("go", "test", dir+"/...")
 	if err != nil {
-		log.Printf("Problems running test in %v. Error: %v\n", dir, err)
+		r.Logger.Warning.Printf("Runner (%v): Problems running test in %v. Error: %v\n", r.Project.Name, dir, err)
 		return
 	}
 
-	log.Println("Runner output:", output)
+	r.Logger.Info.Printf("Runner (%v): [Test Output] %v", output)
 }
 
 func (r *Runner) Run() {
-	log.Println("Runner started...")
+	r.Logger.Info.Printf("Runner started for project '%v'...\n", r.Project.Name)
 
 	for {
 		dir := <-r.RunQueue

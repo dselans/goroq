@@ -17,7 +17,7 @@ type Logger struct {
 	Critical *log.Logger
 }
 
-func New(filename string, stdout bool) (*Logger, error) {
+func New(filename string, quiet bool) (*Logger, error) {
 	file, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		return &Logger{}, err
@@ -25,10 +25,10 @@ func New(filename string, stdout bool) (*Logger, error) {
 
 	var handle io.Writer
 
-	if stdout {
-		handle = io.MultiWriter(file, os.Stdout)
-	} else {
+	if quiet {
 		handle = file
+	} else {
+		handle = io.MultiWriter(file, os.Stdout)
 	}
 
 	logger := &Logger{}
